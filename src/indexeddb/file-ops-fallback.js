@@ -8,18 +8,23 @@ function positionToKey(pos, blockSize) {
 }
 
 async function openDb(name) {
+  console.log('calling opendb');
   await safari14Workaround();
-  
+
   return new Promise((resolve, reject) => {
     let req = globalThis.indexedDB.open(name, 2);
     req.onsuccess = event => {
+      console.log('db opened!', name);
+
       let db = event.target.result;
 
       db.onversionchange = () => {
         console.log('closing because version changed');
         db.close();
       };
-      db.onclose = () => {};
+      db.onclose = () => {
+        console.log('db closed!');
+      };
 
       resolve(db);
     };
@@ -34,11 +39,6 @@ async function openDb(name) {
   });
 }
 
-// Using a separate class makes it easier to follow the code, and
-// importantly it removes any reliance on internal state in
-// `FileOpsFallback`. That would be problematic since these method
-// happen async; the args to `write` must be closed over so they don't
-// change
 class Persistance {
   constructor(dbName, onFallbackFailure) {
     this.dbName = dbName;
@@ -47,19 +47,21 @@ class Persistance {
     this.onFallbackFailure = onFallbackFailure;
   }
 
-  async getDb() {
-    if (this._openDb) {
-      return this._openDb;
+  getDb() {
+    if (this._openDbPromise) {
+      return this._openDbPromise;
     }
 
-    this._openDb = await openDb(this.dbName);
-    return this._openDb;
+    this._openDbPromise = openDb(this.dbName);
+
+    return this._openDbPromise;
   }
 
   closeDb() {
-    if (this._openDb) {
-      this._openDb.close();
-      this._openDb = null;
+    console.log('closing db!');
+    if (this._openDbPromise) {
+      this._openDbPromise.then((db) => db.close());
+      this._openDbPromise = null;
     }
   }
 
@@ -72,6 +74,7 @@ class Persistance {
   // atomically)
 
   async readAll() {
+    console.log('reading!');
     let db = await this.getDb(this.dbName);
     let blocks = new Map();
 
@@ -95,6 +98,7 @@ class Persistance {
   }
 
   async write(writes, cachedFirstBlock, hasLocked) {
+    console.log('writing!');
     let db = await this.getDb(this.dbName);
 
     // We need grab a readwrite lock on the db, and then read to check
@@ -121,7 +125,9 @@ class Persistance {
           store.put(write.value, write.key);
         }
 
-        trans.onsuccess = () => resolve();
+        trans.onsuccess = () => {
+          resolve();
+        }
         trans.onerror = () => reject();
       };
       req.onerror = reject;

@@ -39,5 +39,5 @@ function getConfig(name, entry, html) {
 
 module.exports = [
   getConfig('bench', './bench/main.js', './bench/index.html'),
-  getConfig('fts', './fts/main.js', './fts/index.html')
+  // getConfig('fts', './fts/main.js', './fts/index.html')
 ];
