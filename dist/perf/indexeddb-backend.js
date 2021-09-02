@@ -37,6 +37,10 @@ function isSafeToWrite(localData, diskData) {
     return true;
   }
 
+  if (localData === null || diskData === null) {
+    console.log('One of data is null! Not safe to write!');
+  }
+
   // One of them is null, so it's only safe if to write if both are
   // null, otherwise they are different
   return localData == null && diskData == null;
@@ -1045,7 +1049,7 @@ function idbReady() {
 function positionToKey(pos, blockSize) {
   // We are forced to round because of floating point error. `pos`
   // should always be divisible by `blockSize`
-  return Math.round(pos / blockSize);
+  return Math.ceil(pos / blockSize);
 }
 
 async function openDb(name) {

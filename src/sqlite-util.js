@@ -35,6 +35,10 @@ export function isSafeToWrite(localData, diskData) {
     return true;
   }
 
+  if (localData === null || diskData === null) {
+    console.log('One of data is null! Not safe to write!');
+  }
+
   // One of them is null, so it's only safe if to write if both are
   // null, otherwise they are different
   return localData == null && diskData == null;

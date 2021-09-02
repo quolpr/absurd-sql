@@ -60,7 +60,7 @@ function makeInitBackend(spawnEventName, getModule) {
 // Use the generic main thread module to create our indexeddb worker
 // proxy
 const initBackend = makeInitBackend('__absurd:spawn-idb-worker', () =>
-  import('./indexeddb-main-thread-worker-7c8c709c.js')
+  import('./indexeddb-main-thread-worker-9c5c01b9.js')
 );
 
 export { initBackend };
