@@ -1049,7 +1049,7 @@ function idbReady() {
 function positionToKey(pos, blockSize) {
   // We are forced to round because of floating point error. `pos`
   // should always be divisible by `blockSize`
-  return Math.ceil(pos / blockSize);
+  return Math.round(pos / blockSize);
 }
 
 async function openDb(name) {
